@@ -8,12 +8,13 @@ require 'filesize'
 require 'progress_bar'
 require 'open-uri'
 require 'digest/sha1'
+require 'set'
 
 def getOptions
     options = { :Command => nil, :Locale => nil, :Edition => nil, :Arch => nil }
 
     parser = OptionParser.new do |opts|
-        opts.banner = "Usage: esd-downloader.rb <command> [options]\nCommands: list and download"
+        opts.banner = "Usage: esd-downloader.rb <command> [options]\nCommands: list, download and keys"
 
         opts.on('-l','--locale LOCALE', 'Specify locale') do |locale|
             options[:Locale] = locale
@@ -123,6 +124,14 @@ def list(locale, edition, arch)
     end
 end
 
+def keys
+    filename = 'keys.yaml'
+    keys = Set.new
+    keys.merge(YAML.load_file(filename)) if File.exist?(filename)
+    ESD::Downloader::getFiles.each { |f| keys << f['Key'] }
+    File.write(filename, keys.to_a.to_yaml)
+end
+
 def main
     options = getOptions
     return false unless options
@@ -137,6 +146,8 @@ def main
         list(options[:Locale], options[:Edition], options[:Arch])
     when :Download
         download(options[:Locale], options[:Edition], options[:Arch])
+    when :Keys
+        keys
     else
         $stderr.puts("Unknown command '#{options[:Command].to_s}'!")
     end

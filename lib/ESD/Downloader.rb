@@ -6,6 +6,7 @@ require 'libmspack'
 module ESD
     module Downloader
         PRODUCT_URI = 'https://go.microsoft.com/fwlink/?LinkId=841361'
+        PRODUCT_UPGRADE_URI = 'https://wscont.apps.microsoft.com/winstore/OSUpgradeNotification/products.xml'
 
         @@Products = nil
 

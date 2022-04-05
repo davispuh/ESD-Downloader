@@ -96,7 +96,7 @@ def download(locale, edition, arch)
 
         progress = nil
         prev_size = 0
-        data = open(file['FilePath'],
+        data = URI.open(file['FilePath'],
                     :content_length_proc => lambda { |length|
                         if length and length > 0
                             progress = ProgressBar.new(length)

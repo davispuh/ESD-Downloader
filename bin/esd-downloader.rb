@@ -28,6 +28,10 @@ def getOptions
             options[:Arch] = arch
         end
 
+        opts.on('-v','--version VERSION', 'Specify windows version (10 or 11)') do |version|
+            options[:Version] = version
+        end
+
         opts.on_tail('-h', '--help', 'Show this message') do
             puts opts
             return false
@@ -56,6 +60,7 @@ def info(file)
     puts "FileName: #{file['FileName']}"
     puts "LanguageCode: #{file['LanguageCode']}"
     puts "Language: #{file['Language']}"
+    puts "Version: #{file['Version']}"
     puts "Edition: #{file['Edition']}"
     puts "Architecture: #{file['Architecture']}"
     size = Filesize.new(file['Size'])
@@ -87,8 +92,8 @@ def verify_download(file)
     return false
 end
 
-def download(locale, edition, arch)
-    files = ESD::Downloader::findFiles(locale, edition, arch)
+def download(version, locale, edition, arch)
+    files = ESD::Downloader::findFiles(version, locale, edition, arch)
     files.each do |file|
         filename = File.basename(file['FileName'], '.*')
         puts "Downloading #{filename}"
@@ -117,8 +122,8 @@ def download(locale, edition, arch)
     end
 end
 
-def list(locale, edition, arch)
-    files = ESD::Downloader::findFiles(locale, edition, arch)
+def list(version, locale, edition, arch)
+    files = ESD::Downloader::findFiles(version, locale, edition, arch)
     files.each do |file|
         info(file)
     end
@@ -128,7 +133,7 @@ def keys
     filename = 'keys.yaml'
     keys = Set.new
     keys.merge(YAML.load_file(filename)) if File.exist?(filename)
-    ESD::Downloader::getFiles.each { |f| keys << f['Key'] }
+    ESD::Downloader::getAllFiles.each { |f| keys << f['Key'] }
     File.write(filename, keys.to_a.to_yaml)
 end
 
@@ -143,9 +148,9 @@ def main
 
     case options[:Command]
     when :List
-        list(options[:Locale], options[:Edition], options[:Arch])
+        list(options[:Version], options[:Locale], options[:Edition], options[:Arch])
     when :Download
-        download(options[:Locale], options[:Edition], options[:Arch])
+        download(options[:Version], options[:Locale], options[:Edition], options[:Arch])
     when :Keys
         keys
     else
